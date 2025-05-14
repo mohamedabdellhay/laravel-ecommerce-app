@@ -4,25 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'image',
-        'parent_id',
-        'is_active',
-        'order'
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    protected $fillable = ['parent_id', 'slug'];
 
     public function parent()
     {
@@ -37,5 +24,21 @@ class Category extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function translations()
+    {
+        return $this->hasMany(CategoryTranslation::class);
+    }
+
+    public function translation($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        return $this->translations()->where('locale', $locale)->first();
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->translation()->name ?? '';
     }
 }

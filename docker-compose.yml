@@ -1,7 +1,6 @@
-version: '3.8'
+
 
 services:
-  # MySQL Database
   db:
     image: mysql:8.0
     container_name: ecommerce_db
@@ -19,7 +18,6 @@ services:
     networks:
       - laravel
 
-  # PHP Service
   app:
     build:
       context: .
@@ -36,7 +34,6 @@ services:
     networks:
       - laravel
 
-  # Nginx Service for User Site
   user_web:
     image: nginx:alpine
     container_name: ecommerce_user_web
@@ -50,7 +47,6 @@ services:
     networks:
       - laravel
 
-  # Nginx Service for Admin Site
   admin_web:
     image: nginx:alpine
     container_name: ecommerce_admin_web
@@ -64,13 +60,13 @@ services:
     networks:
       - laravel
 
-  # Composer Service
   composer:
     image: composer:latest
     container_name: ecommerce_composer
     volumes:
       - ./src:/var/www/html
     working_dir: /var/www/html
+    command: bash -c "composer create-project --prefer-dist laravel/laravel . || echo 'Failed to create project'"
     networks:
       - laravel
 

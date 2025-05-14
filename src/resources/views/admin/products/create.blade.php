@@ -1,160 +1,96 @@
 @extends('layouts.admin')
 
+@section('title', __('Create Product'))
+
 @section('content')
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Add New Product</h1>
-        <a href="{{ route('admin.products.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back
-        </a>
-    </div>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Product Details</h6>
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4">{{ __('Create Product') }}</h2>
+    <form action="{{ route('admin.products.store') }}" method="POST" class="space-y-6">
+        @csrf
+        <div>
+            <label for="price" class="block text-sm font-medium text-gray-700">{{ __('Price') }}</label>
+            <input type="number" name="price" id="price" step="0.01" value="{{ old('price') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
         </div>
-        <div class="card-body">
-            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
+         <div>
+            <label for="sku" class="block text-sm font-medium text-gray-700">{{ __('SKU') }}</label>
+            <input type="text" name="sku" id="sku" value="{{ old('sku') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+        </div>
+        <div>
+            <label for="stock" class="block text-sm font-medium text-gray-700">{{ __('Stock') }}</label>
+            <input type="number" name="stock" id="stock" value="{{ old('stock') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+        </div>
+        <div>
+            <label for="category_id" class="block text-sm font-medium text-gray-700">{{ __('Category') }}</label>
+            <select name="category_id" id="category_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <option value="">{{ __('Select Category') }}</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label for="slug" class="block text-sm font-medium text-gray-700">{{ __('Slug') }}</label>
+            <input type="text" name="slug" id="slug" value="{{ old('slug') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+        </div>
 
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="form-group">
-                            <label for="name">Product Name *</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
-                            @error('name')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description') }}</textarea>
-                            @error('description')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="short_description">Short Description</label>
-                            <textarea class="form-control @error('short_description') is-invalid @enderror" id="short_description" name="short_description" maxlength="500">{{ old('short_description') }}</textarea>
-                            @error('short_description')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="price">Price *</label>
-                            <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" required>
-                            @error('price')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="discount_price">Discount Price</label>
-                            <input type="number" step="0.01" class="form-control @error('discount_price') is-invalid @enderror" id="discount_price" name="discount_price" value="{{ old('discount_price') }}">
-                            @error('discount_price')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="sku">SKU *</label>
-                            <input type="text" class="form-control @error('sku') is-invalid @enderror" id="sku" name="sku" value="{{ old('sku') }}" required>
-                            @error('sku')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="stock">Stock Quantity *</label>
-                            <input type="number" class="form-control @error('stock') is-invalid @enderror" id="stock" name="stock" value="{{ old('stock', 0) }}" required>
-                            @error('stock')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="category_id">Category *</label>
-                            <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
-                                <option value="">Select Category</option>
-                                @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('category_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="brand_id">Brand</label>
-                            <select class="form-control @error('brand_id') is-invalid @enderror" id="brand_id" name="brand_id">
-                                <option value="">Select Brand</option>
-                                @foreach($brands as $brand)
-                                <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('brand_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="status">Status *</label>
-                            <select class="form-control @error('status') is-invalid @enderror" id="status" name="status" required>
-                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                                <option value="archived" {{ old('status') == 'archived' ? 'selected' : '' }}>Archived</option>
-                            </select>
-                            @error('status')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="is_featured" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_featured">Featured Product</label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="image">Product Image</label>
-                            <input type="file" class="form-control-file @error('image') is-invalid @enderror" id="image" name="image">
-                            @error('image')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
+        <!-- Translations -->
+        <h4 class="text-lg font-semibold">{{ __('Translations') }}</h4>
+        @foreach (['ar', 'en'] as $locale)
+            <div class="bg-white p-4 rounded-md shadow-md">
+                <h5 class="font-medium">{{ $locale == 'ar' ? __('Arabic') : __('English') }}</h5>
+                <input type="hidden" name="translations[{{$locale}}][locale]" value="{{ $locale }}">
+                <div class="mt-2">
+                    <label for="translations_{{ $locale }}_name" class="block text-sm font-medium text-gray-700">{{ __('Name') }}</label>
+                    <input type="text" name="translations[{{$locale}}][name]" id="translations_{{ $locale }}_name" value="{{ old('translations.' . $locale . '.name') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
+                <div class="mt-2">
+                    <label for="translations_{{ $locale }}_description" class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label>
+                    <textarea name="translations[{{$locale}}][description]" id="translations_{{ $locale }}_description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ old('translations.' . $locale . '.description') }}</textarea>
+                </div>
+                <div class="mt-4">
+                    <label for="content_{{ $locale }}" class="block text-sm font-medium text-gray-700">{{ __('Detailed Content') }}</label>
+                    <textarea name="content[{{$locale}}]" id="content_{{ $locale }}" class="tinymce">{{ old('content.' . $locale) }}</textarea>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('This content will be stored as HTML in a text file') }}</p>
+                </div>
+            </div>
+        @endforeach
 
-                <button type="submit" class="btn btn-primary">Save Product</button>
-            </form>
+        <!-- Images -->
+        <h4 class="text-lg font-semibold">{{ __('Images') }}</h4>
+        <div id="images-container">
+            <div class="mb-4">
+                <label for="image_path" class="block text-sm font-medium text-gray-700">{{ __('Image Path') }}</label>
+                <input type="file" name="images[0][path]" id="image_path" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" accept="image/*" required>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Upload an image for the product') }}</p>
+                {{-- <label for="image_path" class="block text-sm font-medium text-gray-700 mt-2">{{ __('Image Alt Text') }}</label>
+                <input type="text" name="images[0][alt]" id="image_alt" value="{{ old('images.0.alt') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="image_path" class="block text-sm font-medium text-gray-700 mt-2">{{ __('Image Title') }}</label>
+                <input type="text" name="images[0][title]" id="image_title" value="{{ old('images.0.title') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="image_path" class="block text-sm font-medium text-gray-700 mt-2">{{ __('Image Description') }}</label>
+                <input type="text" name="images[0][description]" id="image_description" value="{{ old('images.0.description') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="image_path" class="block text-sm font-medium text-gray-700 mt-2">{{ __('Image Order') }}</label>
+                <input type="number" name="images[0][order]" id="image_order" value="{{ old('images.0.order') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="image_path" class="block text-sm font-medium text-gray-700 mt-2">{{ __('Image Size') }}</label> --}}
+                <label class="inline-flex items-center mt-2">
+                    <input type="checkbox" name="images[0][is_primary]" id="is_primary" class="form-checkbox" {{ old('images.0.is_primary') ? 'checked' : '' }}>
+                    <span class="ml-2 text-sm text-gray-700">{{ __('Primary Image') }}</span>
+                </label>
+            </div>
         </div>
-    </div>
+
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">{{ __('Create') }}</button>
+    </form>
+
+    <script>
+        function addImage() {
+            const container = document.getElementById('images-container');
+            const newImage = container.cloneNode(true);
+            newImage.querySelector('input').value = '';
+            newImage.querySelector('input[name="images[0][is_primary]"]').checked = false;
+            container.appendChild(newImage);
+        }
+    </script>
+    
+
 </div>
 @endsection

@@ -1,98 +1,90 @@
 @extends('layouts.admin')
 
+@section('title', __('Product Details'))
+
 @section('content')
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Product Details</h1>
-        <a href="{{ route('admin.products.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back
-        </a>
-    </div>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ $product->name }}</h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    @if($product->image)
-                    <img src="{{ asset('storage/'.$product->image) }}" alt="{{ $product->name }}" class="img-fluid mb-3">
-                    @else
-                    <div class="bg-light p-5 text-center mb-3">
-                        No Image Available
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4">{{ __('Product Details') }}</h2>
+    <div class="bg-white p-6 rounded-md shadow-md">
+        <h3 class="text-xl font-semibold">{{ $product->name }}</h3>
+        <p class="mt-2"><strong>{{ __('Description') }}:</strong> {{ $product->description }}</p>
+        <p class="mt-2"><strong>{{ __('Price') }}:</strong> {{ $product->price }}</p>
+        <p class="mt-2"><strong>{{ __('Stock') }}:</strong> {{ $product->stock }}</p>
+        <p class="mt-2"><strong>{{ __('Category') }}:</strong> {{ $product->category->name }}</p>
+        <p class="mt-2"><strong>{{ __('Slug') }}:</strong> {{ $product->slug }}</p>
+        
+        <!-- Detailed Content -->
+        @if ($product->has_content)
+            <h4 class="mt-4 font-semibold">{{ __('Detailed Content') }}</h4>
+            <div class="mt-2 border rounded-md">
+                <div class="border-b">
+                    <div class="flex">
+                        @foreach (['en', 'ar'] as $locale)
+                            <button 
+                                class="content-tab px-4 py-2 {{ $locale === app()->getLocale() ? 'bg-blue-100 border-blue-500 border-b-2' : '' }}" 
+                                data-locale="{{ $locale }}"
+                            >
+                                {{ $locale === 'ar' ? __('Arabic') : __('English') }}
+                            </button>
+                        @endforeach
                     </div>
-                    @endif
                 </div>
-                <div class="col-md-8">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th width="30%">Name</th>
-                            <td>{{ $product->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>SKU</th>
-                            <td>{{ $product->sku }}</td>
-                        </tr>
-                        <tr>
-                            <th>Price</th>
-                            <td>${{ number_format($product->price, 2) }}</td>
-                        </tr>
-                        @if($product->discount_price)
-                        <tr>
-                            <th>Discount Price</th>
-                            <td>${{ number_format($product->discount_price, 2) }}</td>
-                        </tr>
-                        @endif
-                        <tr>
-                            <th>Stock</th>
-                            <td>{{ $product->stock }}</td>
-                        </tr>
-                        <tr>
-                            <th>Category</th>
-                            <td>{{ $product->category->name }}</td>
-                        </tr>
-                        @if($product->brand)
-                        <tr>
-                            <th>Brand</th>
-                            <td>{{ $product->brand->name }}</td>
-                        </tr>
-                        @endif
-                        <tr>
-                            <th>Status</th>
-                            <td>
-                                <span class="badge badge-{{ $product->status == 'active' ? 'success' : ($product->status == 'draft' ? 'warning' : 'secondary') }}">
-                                    {{ ucfirst($product->status) }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Featured</th>
-                            <td>{{ $product->is_featured ? 'Yes' : 'No' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Created At</th>
-                            <td>{{ $product->created_at->format('M d, Y H:i') }}</td>
-                        </tr>
-                        <tr>
-                            <th>Updated At</th>
-                            <td>{{ $product->updated_at->format('M d, Y H:i') }}</td>
-                        </tr>
-                    </table>
-
-                    <h5 class="mt-4">Short Description</h5>
-                    <p>{{ $product->short_description ?? 'N/A' }}</p>
-
-                    <h5 class="mt-4">Description</h5>
-                    <div>{!! $product->description ?? 'N/A' !!}</div>
+                <div class="p-4">
+                    @foreach (['en', 'ar'] as $locale)
+                        <div id="content-{{ $locale }}" class="content-panel {{ $locale === app()->getLocale() ? '' : 'hidden' }}">
+                            @if (!empty($content[$locale]))
+                                <div class="prose max-w-none">{!! $content[$locale] !!}</div>
+                            @else
+                                <p class="text-gray-500">{{ __('No content available in this language.') }}</p>
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
             </div>
-        </div>
-        <div class="card-footer">
-            <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit
-            </a>
+        @endif
+        
+        <h4 class="mt-4 font-semibold">{{ __('Images') }}</h4>
+        <ul class="list-disc pl-5">
+            @foreach ($product->images as $image)
+                <li>{{ $image->image_path }} {{ $image->is_primary ? '(' . __('Primary') . ')' : '' }}</li>
+            @endforeach
+        </ul>
+        <h4 class="mt-4 font-semibold">{{ __('Variants') }}</h4>
+        <ul class="list-disc pl-5">
+            @foreach ($product->variants as $variant)
+                <li>{{ $variant->sku }} - {{ $variant->price }} ({{ $variant->stock }})</li>
+            @endforeach
+        </ul>
+        <div class="mt-4 flex space-x-2">
+            <a href="{{ route('admin.products.edit', $product->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">{{ __('Edit') }}</a>
+            <a href="{{ route('admin.products.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">{{ __('Back') }}</a>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching for content
+        const tabs = document.querySelectorAll('.content-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const locale = this.getAttribute('data-locale');
+                
+                // Hide all panels
+                document.querySelectorAll('.content-panel').forEach(panel => {
+                    panel.classList.add('hidden');
+                });
+                
+                // Show the selected panel
+                document.getElementById('content-' + locale).classList.remove('hidden');
+                
+                // Update tab styles
+                tabs.forEach(t => {
+                    t.classList.remove('bg-blue-100', 'border-blue-500', 'border-b-2');
+                });
+                this.classList.add('bg-blue-100', 'border-blue-500', 'border-b-2');
+            });
+        });
+    });
+</script>
 @endsection
